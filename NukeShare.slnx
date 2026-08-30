@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NukeShare.CLI/NukeShare.CLI.csproj" />
+  <Project Path="NukeShare.Server/NukeShare.Server.csproj" />
+</Solution>
