@@ -1,4 +1,6 @@
 <Solution>
-  <Project Path="NukeShare.CLI/NukeShare.CLI.csproj" />
-  <Project Path="NukeShare.Server/NukeShare.Server.csproj" />
+  <Project Path="source/NukeShare.CLI/NukeShare.CLI.csproj" />
+  <Project Path="source/NukeShare.Core/NukeShare.Core.csproj" Id="e711ed71-d69e-4ac9-9408-29c09eba4394" />
+  <Project Path="source/NukeShare.Daemon/NukeShare.Daemon.csproj" />
+  <Project Path="source/NukeShare.Network/NukeShare.Network.csproj" Id="6240f81c-a5fb-45e3-a2ad-eca3ab10dbb0" />
 </Solution>
