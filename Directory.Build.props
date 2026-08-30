@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <PublishDir>$(MSBuildThisFileDirectory)artifacts/publish/$(Configuration)/</PublishDir>
+  </PropertyGroup>
+</Project>
