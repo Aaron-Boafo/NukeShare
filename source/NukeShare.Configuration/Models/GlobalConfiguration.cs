@@ -9,7 +9,7 @@ namespace NukeShare.Configuration.Models
         public string OperatingSystem { set; get; } = Environment.OSVersion.Platform.ToString();
         public string DefaultStoragePath { set; get; } = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads/NukeShare"
+                "Downloads", "NukeShare"
             );
         public bool AutoAcceptPeers { set; get; } = false;
         public string DefaultListenPort { set; get; } = "7654";
