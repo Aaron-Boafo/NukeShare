@@ -1,5 +1,11 @@
 <Project>
   <PropertyGroup>
+    <ArtifactsDir>$(MSBuildThisFileDirectory)artifacts/</ArtifactsDir>
+    <OutputPath>$(ArtifactsDir)bin/$(Configuration)/$(MSBuildProjectName)/</OutputPath>
     <PublishDir>$(MSBuildThisFileDirectory)artifacts/publish/$(Configuration)/</PublishDir>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.57.2" />
+  </ItemGroup>
 </Project>
