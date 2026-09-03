@@ -17,8 +17,10 @@
 ### Current Features
 - **CLI Command System** - Rich command-line interface powered by Spectre.Console
 - **Configuration Management** - Cross-platform JSON-based configuration with reflection-based key discovery
-- **Daemon Service** - ASP.NET Core background daemon with OpenAPI/Scalar documentation
-- **Rich Console UI** - Colored panels, tables, and status messages via Spectre.Console
+- **Daemon Lifecycle** - Start and stop the background daemon (`nuke start` / `nuke stop`)
+- **Cross-Platform Daemon Launch** - Windows, macOS, and Linux process management
+- **Daemon Health Check** - `/health` endpoint returning running status, PID, and timestamp
+- **Rich Console UI** - Colored boxed panels, tables, and status messages via Spectre.Console
 
 ### Planned Features
 - **Peer-to-Peer File Transfer** - Chunked transfers with configurable chunk size and concurrent chunks
@@ -54,9 +56,11 @@ NukeShare/
     │   ├── Program.cs
     │   ├── Commands/
     │   │   ├── ConfigurationCommand.cs
-    │   │   └── StartCommand.cs
+    │   │   ├── StartCommand.cs
+    │   │   └── StopCommand.cs
     │   ├── Infrastructure/
-    │   │   └── TypeResolver.cs
+    │   │   ├── TypeResolver.cs
+    │   │   └── DaemonProcessLauncher.cs
     │   └── UI/
     │       └── BannerBadge.cs
     ├── NukeShare.Configuration/
@@ -88,9 +92,9 @@ NukeShare/
 | Project | Description |
 |---------|-------------|
 | **NukeShare.CLI** | Main CLI application (entry point) - the `nuke` command |
-| **NukeShare.Daemon** | ASP.NET Core web daemon with OpenAPI documentation |
-| **NukeShare.Configuration** | Configuration management library |
-| **NukeShare.Core** | Core shared types and interfaces |
+| **NukeShare.Daemon** | ASP.NET Core daemon with health check and OpenAPI documentation |
+| **NukeShare.Configuration** | Cross-platform configuration management library |
+| **NukeShare.Core** | Core shared types and interfaces (logging) |
 | **NukeShare.Network** | P2P networking library (placeholder) |
 
 ---
@@ -157,8 +161,8 @@ nuke config <KEY> <VALUE>
 
 Example:
 ```bash
-nuke config identity.nickname "MyComputer"
-nuke config network.discovery.port 8080
+nuke config Username "MyComputer"
+nuke config DefaultListenPort 8080
 ```
 
 ### View Version
@@ -173,10 +177,23 @@ nuke config --version
 nuke start
 ```
 
-Or with a custom port:
+Start with a custom port:
 ```bash
 nuke start --port 7654
 ```
+
+Run the daemon in the background:
+```bash
+nuke start --background
+```
+
+### Stop Daemon
+
+```bash
+nuke stop
+```
+
+Alias: `nuke kill`
 
 ---
 

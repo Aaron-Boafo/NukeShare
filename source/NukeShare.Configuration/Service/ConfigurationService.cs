@@ -17,18 +17,42 @@ public class ConfigurationService(
     public async Task InitializeGlobalConfig()
     {
         string filePath = Path.Combine(basePath, "config.json");
-        var textPath = new TextPath(filePath);
+        bool existed = File.Exists(filePath);
 
-        if (File.Exists(filePath))
+        var config = await _globalProvider.LoadAsync(basePath);
+
+        EnsureDirectory(config.DefaultStoragePath);
+        EnsureDirectory(config.IncomingPath);
+        EnsureDirectory(config.TempPath);
+        EnsureDirectory(ConfigurationPathResolver.GetLogPath());
+
+        await _globalProvider.SaveAsync(basePath, config);
+
+        if (existed)
         {
-            AnsiConsole.MarkupLine($"[bold white]config already exist at[/] [green]{filePath}[/]");
-            AnsiConsole.Write(textPath);
-            return ;
+            AnsiConsole.MarkupLine("[yellow]┌─[bold] Already initialized [/]─[/]");
+            AnsiConsole.MarkupLine($"[yellow]│[/] A global configuration already exists at: [cyan]{filePath}[/]");
+            AnsiConsole.MarkupLine("[yellow]│[/] [grey]Directories were verified and the configuration was refreshed with the latest settings.[/]");
+            AnsiConsole.MarkupLine("[yellow]└─[/]");
+            return;
         }
 
-        await _globalProvider.SaveAsync(basePath);
-        AnsiConsole.MarkupLine($"[bold white]successfully created NukeShare config[/] [green]{filePath} [/]");
-        AnsiConsole.Write(textPath);
+        AnsiConsole.MarkupLine("[green]┌─[bold] Config created [/]─[/]");
+        AnsiConsole.MarkupLine($"[green]│[/] NukeShare is ready to use. Your global configuration has been created at: [cyan]{filePath}[/]");
+        AnsiConsole.MarkupLine("[green]├─[/]");
+        AnsiConsole.MarkupLine("[green]│[/] [grey]Storage, incoming, temp, and log directories were set up.[/]");
+        AnsiConsole.MarkupLine("[green]│[/] [grey]Tip:[/] [white bold]nuke config --list[/] to review your settings.");
+        AnsiConsole.MarkupLine("[green]└─[/]");
+    }
+
+    private static void EnsureDirectory(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(path);
     }
 
     public async Task<GlobalConfiguration> LoadGlobalConfig()
@@ -43,13 +67,23 @@ public class ConfigurationService(
     {
         if (string.IsNullOrEmpty(key))
         {
-            _logger?.LogWarning("No options provided to update.");
+            _logger?.LogWarning("Configuration update failed: no key provided.");
+            AnsiConsole.MarkupLine("[red]┌─[bold] Error [/]─[/]");
+            AnsiConsole.MarkupLine("[red]│[/] A configuration key is required.");
+            AnsiConsole.MarkupLine("[red]├─[/]");
+            AnsiConsole.MarkupLine("[red]│[/] [grey]Usage:[/] [white bold]nuke config <KEY> <VALUE>[/]");
+            AnsiConsole.MarkupLine("[red]└─[/]");
             return;
         }
 
         if (string.IsNullOrEmpty(value))
         {
-            _logger?.LogWarning("No options provided to update.");
+            _logger?.LogWarning($"Configuration update failed: no value provided for '{key}'.");
+            AnsiConsole.MarkupLine("[red]┌─[bold] Error [/]─[/]");
+            AnsiConsole.MarkupLine($"[red]│[/] A value is required to set [white bold]{key.EscapeMarkup()}[/].");
+            AnsiConsole.MarkupLine("[red]├─[/]");
+            AnsiConsole.MarkupLine($"[red]│[/] [grey]Usage:[/] [white bold]nuke config {key.EscapeMarkup()} <VALUE>[/]");
+            AnsiConsole.MarkupLine("[red]└─[/]");
             return;
         }
 
@@ -60,11 +94,15 @@ public class ConfigurationService(
             var update = await _globalProvider.LoadAsync(basePath);
             var property = update.GetType()
                 .GetProperty(key, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-            
 
             if (property == null || !property.CanWrite)
             {
-                AnsiConsole.MarkupLine($"Property does not exist or can't be written");
+                _logger?.LogWarning($"Cannot update '{key}': it does not exist or is read-only.");
+                AnsiConsole.MarkupLine("[red]┌─[bold] Error [/]─[/]");
+                AnsiConsole.MarkupLine($"[red]│[/] [white bold]{key.EscapeMarkup()}[/] is not a valid configuration setting.");
+                AnsiConsole.MarkupLine("[red]├─[/]");
+                AnsiConsole.MarkupLine("[red]│[/] [grey]Run [white bold]nuke config --help[/] to list valid settings.[/]");
+                AnsiConsole.MarkupLine("[red]└─[/]");
                 return;
             }
 
@@ -72,20 +110,25 @@ public class ConfigurationService(
             var convertedValue = Convert.ChangeType(value, targetType);
 
             property.SetValue(update, convertedValue);
-          
-            await _globalProvider.SaveAsync(basePath, update);
-            AnsiConsole.MarkupLine($"[green]✓[/] sucessfully updated [bold green]{key}[/] to [bold cyan]{value}[/] properties");
 
+            await _globalProvider.SaveAsync(basePath, update);
+            AnsiConsole.MarkupLine("[green]┌─[bold] Updated [/]─[/]");
+            AnsiConsole.MarkupLine($"[green]│[/] Set [white bold]{key.EscapeMarkup()}[/] to [bold cyan]{value.EscapeMarkup()}[/].");
+            AnsiConsole.MarkupLine("[green]└─[/]");
         }
         catch (OperationCanceledException)
         {
-            _logger?.LogWarning("Update was cancelled");
-            AnsiConsole.MarkupLine("[yellow]⚠[/] Operation cancelled");
+            _logger?.LogWarning("Configuration update cancelled.");
+            AnsiConsole.MarkupLine("[yellow]┌─[bold] Cancelled [/]─[/]");
+            AnsiConsole.MarkupLine("[yellow]│[/] The configuration update was cancelled.");
+            AnsiConsole.MarkupLine("[yellow]└─[/]");
         }
         catch (Exception ex)
         {
             _logger?.LogError($"Failed to update global configuration: {ex.Message}");
-            AnsiConsole.MarkupLine($"[red]✗[/] [bold]Error:[/] {ex.Message.EscapeMarkup()}");
+            AnsiConsole.MarkupLine("[red]┌─[bold] Error [/]─[/]");
+            AnsiConsole.MarkupLine($"[red]│[/] Could not update [white bold]{key.EscapeMarkup()}[/]: {ex.Message.EscapeMarkup()}");
+            AnsiConsole.MarkupLine("[red]└─[/]");
         }
     }
 }
