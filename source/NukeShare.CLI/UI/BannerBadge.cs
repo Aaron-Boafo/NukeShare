@@ -1,9 +1,15 @@
-﻿using Spectre.Console;
+﻿using System.Reflection;
+using Spectre.Console;
 
 namespace NukeShare.CLI.UI
 {
     internal static class BannerBadge
     {
+        private static readonly string Version = Assembly.GetExecutingAssembly()
+            .GetName()
+            .Version?
+            .ToString(3) ?? "1.0.0";
+
         private static readonly FigletText Badge = new FigletText("NukeShare")
         {
             Color = Color.OrangeRed1,
@@ -12,7 +18,7 @@ namespace NukeShare.CLI.UI
 
         private static Markup subtitle = new Markup(
             "[bold white]Peer-to-Peer Encrypted File Transfer Engine[/]\n" +
-            $"[bold cyan]Build version[/] [grey]{"v1.0.0"}[/]"
+            $"[bold cyan]Build version[/] [grey]{Version}[/]"
         );
 
         private static Markup hints = new Markup(
