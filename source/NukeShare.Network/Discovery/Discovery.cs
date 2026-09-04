@@ -72,6 +72,8 @@ public class UdpDiscoveryService : BackgroundService
 
                 string peerIp = result.RemoteEndPoint.Address.ToString();
 
+                if (IsLocalAddress(peerIp)) continue;
+
                 if (!_registry.IsSubnetAllowed(peerIp))
                 {
                     _logger.LogDebug("Rejected peer {Ip} — not in allowed subnets", peerIp);
@@ -148,6 +150,25 @@ public class UdpDiscoveryService : BackgroundService
                 _logger.LogWarning("Failed to broadcast UDP beacon: {Message}", ex.Message);
                 await Task.Delay(5000, ct);
             }
+        }
+    }
+
+    private static bool IsLocalAddress(string ip)
+    {
+        if (!IPAddress.TryParse(ip, out var address))
+            return false;
+
+        if (IPAddress.IsLoopback(address))
+            return true;
+
+        try
+        {
+            var localAddresses = Dns.GetHostAddresses(Dns.GetHostName());
+            return localAddresses.Any(a => a.Equals(address));
+        }
+        catch
+        {
+            return false;
         }
     }
 

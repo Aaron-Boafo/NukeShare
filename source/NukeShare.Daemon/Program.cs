@@ -3,6 +3,7 @@ using NukeShare.Configuration.Providers;
 using NukeShare.Configuration.Service;
 using NukeShare.Configuration.Models;
 using NukeShare.Network.Discovery;
+using CoreLogger = NukeShare.Core.Logger;
 
 namespace NukeShare.Daemon;
 
@@ -14,6 +15,7 @@ public class Program
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
 
+        builder.Services.AddSingleton<CoreLogger.Logger>();
         builder.Services.AddSingleton<GlobalProvider>();
         builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
 

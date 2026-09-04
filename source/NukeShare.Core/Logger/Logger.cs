@@ -1,35 +1,34 @@
-﻿namespace NukeShare.Core.Logger
+﻿namespace NukeShare.Core.Logger;
+
+public interface ILogger
 {
-    public interface ILogger
+    void LogWarning(string message);
+    void LogError(string message);
+    void LogDebug(string message);
+}
+
+public class Logger : ILogger
+{
+    public void LogWarning(string message)
     {
-        void LogWarning(string message);
-        void LogError(string message);
-        void LogDebug(string message);
+        WriteLine("WARN", message, ConsoleColor.Yellow);
     }
 
-    public class Logger : ILogger
+    public void LogError(string message)
     {
-        public void LogWarning(string message)
-        {
-            WriteLine("WARN", message, ConsoleColor.Yellow);
-        }
+        WriteLine("ERROR", message, ConsoleColor.Red);
+    }
 
-        public void LogError(string message)
-        {
-            WriteLine("ERROR", message, ConsoleColor.Red);
-        }
+    public void LogDebug(string message)
+    {
+        WriteLine("DEBUG", message, ConsoleColor.Gray);
+    }
 
-        public void LogDebug(string message)
-        {
-            WriteLine("DEBUG", message, ConsoleColor.Gray);
-        }
-
-        private static void WriteLine(string level, string message, ConsoleColor color)
-        {
-            var originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [{level}] {message}");
-            Console.ForegroundColor = originalColor;
-        }
+    private static void WriteLine(string level, string message, ConsoleColor color)
+    {
+        var originalColor = Console.ForegroundColor;
+        Console.ForegroundColor = color;
+        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [{level}] {message}");
+        Console.ForegroundColor = originalColor;
     }
 }
