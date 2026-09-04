@@ -153,4 +153,31 @@ public class StatusController : ControllerBase
 
         return Ok(new { message = "Daemon shutdown initiated." });
     }
+
+    [HttpPatch("peers/{nodeId}/trust")]
+    public IActionResult SetPeerTrust(string nodeId, [FromBody] TrustRequest request)
+    {
+        if (!Enum.TryParse<PeerTrust>(request.Trust, ignoreCase: true, out var trust))
+            return BadRequest(new { error = $"Invalid trust value. Use: {string.Join(", ", Enum.GetNames<PeerTrust>())}" });
+
+        var peer = _peerRegistry.GetPeer(nodeId);
+        if (peer == null)
+            return NotFound(new { error = $"Peer {nodeId} not found." });
+
+        _peerRegistry.SetTrust(nodeId, trust);
+        return Ok(new { nodeId, trust = trust.ToString() });
+    }
+
+    [HttpDelete("peers/{nodeId}")]
+    public IActionResult RemovePeer(string nodeId)
+    {
+        var peer = _peerRegistry.GetPeer(nodeId);
+        if (peer == null)
+            return NotFound(new { error = $"Peer {nodeId} not found." });
+
+        _peerRegistry.RemovePeer(nodeId);
+        return Ok(new { nodeId, removed = true });
+    }
 }
+
+public record TrustRequest(string Trust);

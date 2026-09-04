@@ -21,15 +21,18 @@
 - **Cross-Platform Daemon Launch** - Windows, macOS, and Linux process management
 - **Daemon Health Check** - `/health` endpoint returning running status, PID, and timestamp
 - **Rich Console UI** - Colored boxed panels, tables, and status messages via Spectre.Console
+- **Status Dashboard** - `nuke status` with `--health`, `--peers`, `--transfers`, `--config`, `--shutdown` flags
+- **UDP Network Discovery** - Broadcast-based peer discovery with config-driven intervals and trust modes
+- **Peer Management** - `nuke peers` to list, approve, reject, and remove peers
+- **Self-Contained Builds** - Single-file executables for Windows, Linux, and macOS
+- **Cross-Platform Build Scripts** - `publish.ps1` and `publish.sh` for easy publishing
 
 ### Planned Features
 - **Peer-to-Peer File Transfer** - Chunked transfers with configurable chunk size and concurrent chunks
-- **UDP Network Discovery** - Multicast/broadcast discovery with configurable intervals
 - **End-to-End Encryption** - AES-256-GCM encryption with peer trust modes
 - **Transfer Throttling** - Bandwidth limits and peer connection limits
 - **Resumable Transfers** - Resume interrupted transfers automatically
 - **Shared Directory Publishing** - Publish directories to peers on the network
-- **Peer Management** - Max peers, timeout detection, and trust management
 
 ---
 
@@ -45,11 +48,15 @@ NukeShare/
 ├── Directory.Build.props
 ├── LICENSE
 ├── NukeShare.slnx
+├── publish.ps1
+├── publish.sh
 ├── artifacts/
-│   └── publish/Release/
-│       ├── nuke.exe
-│       ├── NukeShare.Daemon.exe
-│       └── ...
+│   ├── bin/Release/
+│   ├── publish/Release/
+│   └── dist/
+│       ├── win-x64/
+│       ├── linux-x64/
+│       └── osx-arm64/
 └── source/
     ├── NukeShare.CLI/
     │   ├── NukeShare.CLI.csproj
@@ -57,10 +64,14 @@ NukeShare/
     │   ├── Commands/
     │   │   ├── ConfigurationCommand.cs
     │   │   ├── StartCommand.cs
-    │   │   └── StopCommand.cs
+    │   │   ├── StopCommand.cs
+    │   │   ├── StatusCommand.cs
+    │   │   └── PeersCommand.cs
     │   ├── Infrastructure/
     │   │   ├── TypeResolver.cs
-    │   │   └── DaemonProcessLauncher.cs
+    │   │   ├── DaemonProcessLauncher.cs
+    │   │   ├── StatusRestApi.cs
+    │   │   └── DaemonStatusDto.cs
     │   └── UI/
     │       └── BannerBadge.cs
     ├── NukeShare.Configuration/
@@ -79,12 +90,19 @@ NukeShare/
     ├── NukeShare.Daemon/
     │   ├── NukeShare.Daemon.csproj
     │   ├── Program.cs
+    │   ├── Controller/
+    │   │   └── StatusController.cs
     │   ├── appsettings.json
     │   ├── appsettings.Development.json
     │   └── Properties/
     │       └── launchSettings.json
     └── NukeShare.Network/
-        └── NukeShare.Network.csproj
+        ├── NukeShare.Network.csproj
+        └── Discovery/
+            ├── Discovery.cs
+            ├── PeerBeacon.cs
+            ├── PeerInfo.cs
+            └── PeerRegistry.cs
 ```
 
 ### Project Descriptions
@@ -92,10 +110,10 @@ NukeShare/
 | Project | Description |
 |---------|-------------|
 | **NukeShare.CLI** | Main CLI application (entry point) - the `nuke` command |
-| **NukeShare.Daemon** | ASP.NET Core daemon with health check and OpenAPI documentation |
+| **NukeShare.Daemon** | ASP.NET Core daemon with health check, status endpoints, and OpenAPI documentation |
 | **NukeShare.Configuration** | Cross-platform configuration management library |
 | **NukeShare.Core** | Core shared types and interfaces (logging) |
-| **NukeShare.Network** | P2P networking library (placeholder) |
+| **NukeShare.Network** | P2P networking library (UDP discovery, peer registry) |
 
 ---
 
@@ -132,6 +150,24 @@ NukeShare/
 1. Download the latest release from [GitHub Releases](https://github.com/Aaron-Boafo/NukeShare/releases)
 2. Extract the archive
 3. Run the `nuke` executable
+
+### Building for Distribution
+
+PowerShell (Windows):
+```powershell
+.\publish.ps1 -Rid win-x64
+.\publish.ps1 -Rid linux-x64
+.\publish.ps1 -Rid osx-arm64
+```
+
+Bash (Linux/macOS):
+```bash
+./publish.sh linux-x64
+./publish.sh osx-arm64
+./publish.sh  # auto-detects platform
+```
+
+Output: `artifacts/dist/<RID>/`
 
 ---
 
@@ -194,6 +230,32 @@ nuke stop
 ```
 
 Alias: `nuke kill`
+
+### Check Status
+
+```bash
+nuke status
+```
+
+With flags:
+```bash
+nuke status --health
+nuke status --peers
+nuke status --transfers
+nuke status --config
+nuke status --shutdown
+```
+
+### Manage Peers
+
+```bash
+nuke peers
+nuke peers --approve
+nuke peers --approve --node <nodeId>
+nuke peers --reject
+nuke peers --reject --node <nodeId>
+nuke peers --remove <nodeId>
+```
 
 ---
 
