@@ -23,6 +23,8 @@ public class Program
         services.AddSingleton<ConfigCommand>();
         services.AddSingleton<StartCommand>();
         services.AddSingleton<StopCommand>();
+        services.AddSingleton<StatusCommand>();
+        services.AddSingleton<PeersCommand>();
 
         var registrar = new TypeRegistrar(services);
         var app = new CommandApp(registrar);
@@ -49,6 +51,24 @@ public class Program
             .WithDescription("Stops the P2P transfer daemon")
             .WithAlias("kill")
             .WithExample(["stop"]);
+
+            config.AddCommand<StatusCommand>("status")
+            .WithDescription("Display the current status of the NukeShare daemon")
+            .WithExample(["status"])
+            .WithExample(["status", "--health"])
+            .WithExample(["status", "--peers"])
+            .WithExample(["status", "--transfers"])
+            .WithExample(["status", "--config"])
+            .WithExample(["status", "--shutdown"]);
+
+            config.AddCommand<PeersCommand>("peers")
+            .WithDescription("List, approve, reject, or remove peers")
+            .WithExample(["peers"])
+            .WithExample(["peers", "--approve"])
+            .WithExample(["peers", "--approve", "a1b2c3d4"])
+            .WithExample(["peers", "--reject"])
+            .WithExample(["peers", "--reject", "e5f6g7h8"])
+            .WithExample(["peers", "--remove", "i9j0k1l2"]);
 
         });
 
