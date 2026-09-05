@@ -7,10 +7,22 @@ using Spectre.Console;
 
 namespace NukeShare.Configuration.Service;
 
+public interface IConfigurationService
+{
+    Task InitializeGlobalConfig();
+
+    Task<GlobalConfiguration> LoadGlobalConfig();
+
+    Task UpdateGlobalConfig(
+        string key, string value,
+        CancellationToken cancellationToken
+    );
+}
+
 public class ConfigurationService(
     GlobalProvider _globalProvider,
     Logger _logger
-)
+) : IConfigurationService
 {
     private readonly string basePath = ConfigurationPathResolver.GetConfigurationDirectory();
 
