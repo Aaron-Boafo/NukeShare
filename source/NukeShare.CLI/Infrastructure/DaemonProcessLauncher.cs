@@ -118,11 +118,8 @@ public static class DaemonProcessLauncher
                     Arguments = "--interactive",
                     WorkingDirectory = Path.GetDirectoryName(daemonPath),
                     UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Normal
                 };
             }
             else
@@ -148,7 +145,7 @@ public static class DaemonProcessLauncher
             }
         }
 
-        daemonStartInfo.Environment["ASPNETCORE_ENVIRONMENT"] = "Production";
+        daemonStartInfo.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
         daemonStartInfo.Environment["ASPNETCORE_URLS"] = $"http://127.0.0.1:{listeningPort}";
 
         try
@@ -161,14 +158,6 @@ public static class DaemonProcessLauncher
                 AnsiConsole.MarkupLine("[red]│[/] The daemon process could not be started.");
                 AnsiConsole.MarkupLine("[red]└─[/]");
                 return;
-            }
-
-            if (!runInBackground && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                process.OutputDataReceived += (_, _) => { };
-                process.ErrorDataReceived += (_, _) => { };
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
             }
 
             AnsiConsole.MarkupLine("[green]┌─[bold] Process launched [/]─[/]");

@@ -24,7 +24,10 @@ public sealed class TypeRegistrar(IServiceCollection services) : ITypeRegistrar
 
     public void RegisterLazy(Type service, Func<object> factory)
     {
-        ArgumentNullException.ThrowIfNull(factory);
+        if (factory is null)
+        {
+            throw new ArgumentNullException(nameof(factory));
+        }
 
         _services.AddSingleton(service, _ => factory());
     }
