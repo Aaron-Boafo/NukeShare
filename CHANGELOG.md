@@ -39,6 +39,8 @@
 - Self-contained publish support for cross-platform single-file executables
 - `publish.ps1` PowerShell build script for Windows (supports win-x64, linux-x64, osx-arm64)
 - `publish.sh` Bash build script for Linux/macOS with auto-detection
+- `RootCommand` banner so running `nuke` with no arguments renders the version badge
+- `RestartCommand` (`nuke restart`) to stop and relaunch the daemon with `--port` and `--background` support
 
 ### Changed
 - Moved all projects from root into `source/` directory
@@ -73,6 +75,9 @@
 - `PeerRegistry` filters local addresses to prevent self-discovery
 - Self-contained publish settings moved from `Directory.Build.props` to individual exe csproj files to avoid `NETSDK1099` errors on library projects
 - `publish.ps1` and `publish.sh` output to `artifacts/dist/<RID>/` directory
+- Default listen port resolution moved from `StartCommand` into `DaemonProcessLauncher.GetDefaultPort`
+- `DaemonProcessLauncher.StopDaemon` now returns a process exit code (`1` when no daemon is running)
+- `StartCommand.ProceedStart` extracted as a reusable static start routine shared by `start` and `restart`
 
 ### Removed
 - Root-level NukeShare.CLI and NukeShare.Server project files

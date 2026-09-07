@@ -17,7 +17,7 @@
 ### Current Features
 - **CLI Command System** - Rich command-line interface powered by Spectre.Console
 - **Configuration Management** - Cross-platform JSON-based configuration with reflection-based key discovery
-- **Daemon Lifecycle** - Start and stop the background daemon (`nuke start` / `nuke stop`)
+- **Daemon Lifecycle** - Start, stop, and restart the background daemon (`nuke start` / `nuke stop` / `nuke restart`)
 - **Cross-Platform Daemon Launch** - Windows, macOS, and Linux process management
 - **Daemon Health Check** - `/health` endpoint returning running status, PID, and timestamp
 - **Rich Console UI** - Colored boxed panels, tables, and status messages via Spectre.Console
@@ -63,8 +63,10 @@ NukeShare/
     │   ├── Program.cs
     │   ├── Commands/
     │   │   ├── ConfigurationCommand.cs
+    │   │   ├── RootCommand.cs
     │   │   ├── StartCommand.cs
     │   │   ├── StopCommand.cs
+    │   │   ├── RestartCommand.cs
     │   │   ├── StatusCommand.cs
     │   │   └── PeersCommand.cs
     │   ├── Infrastructure/
@@ -230,6 +232,22 @@ nuke stop
 ```
 
 Alias: `nuke kill`
+
+### Restart Daemon
+
+```bash
+nuke restart
+```
+
+Restart with a custom port:
+```bash
+nuke restart --port 7654
+```
+
+Restart in the background:
+```bash
+nuke restart --background
+```
 
 ### Check Status
 

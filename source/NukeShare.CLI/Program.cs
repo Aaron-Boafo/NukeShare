@@ -23,16 +23,17 @@ public class Program
         services.AddSingleton<ConfigCommand>();
         services.AddSingleton<StartCommand>();
         services.AddSingleton<StopCommand>();
+        services.AddSingleton<RootCommand>();
+        services.AddSingleton<RestartCommand>();
         services.AddSingleton<StatusCommand>();
         services.AddSingleton<PeersCommand>();
 
         var registrar = new TypeRegistrar(services);
-        var app = new CommandApp(registrar);
+        var app = new CommandApp<RootCommand>(registrar);
 
         app.Configure(config =>
         {
             config.SetApplicationName("nuke");
-            config.SetApplicationVersion("1.0.0");
 
             config.AddCommand<ConfigCommand>("config")
             .WithDescription("Manage global and local NukeShare settings")
@@ -46,6 +47,10 @@ public class Program
             .WithExample(["start"])
             .WithExample(["start", "--port", "7654"])
             .WithExample(["start", "--background"]);
+
+            config.AddCommand<RestartCommand>("restart")
+            .WithExample(["restart", "--port", "7654"])
+            .WithExample(["restart", "--background"]); 
 
             config.AddCommand<StopCommand>("stop")
             .WithDescription("Stops the P2P transfer daemon")
