@@ -41,6 +41,11 @@
 - `publish.sh` Bash build script for Linux/macOS with auto-detection
 - `RootCommand` banner so running `nuke` with no arguments renders the version badge
 - `RestartCommand` (`nuke restart`) to stop and relaunch the daemon with `--port` and `--background` support
+- `TcpFileReceiverService` hosted in the daemon to accept incoming file transfers on `DefaultTransferPort`
+- `TransferController` with endpoints: `GET /v1/transfer`, `GET /v1/transfer/recent`, `GET /v1/transfer/{transferId}`, `POST /v1/transfer`, `POST /v1/transfer/{transferId}/cancel`
+- `TransferTracker` service for starting, monitoring, and cancelling outgoing transfers with progress and speed tracking
+- `TransferCommand` (`nuke transfer`) to send files to peers, list active and recent transfers, and cancel transfers with a live `--watch` progress view
+- `TransferRestApi` HTTP client for all transfer endpoints
 
 ### Changed
 - Moved all projects from root into `source/` directory
@@ -76,8 +81,11 @@
 - Self-contained publish settings moved from `Directory.Build.props` to individual exe csproj files to avoid `NETSDK1099` errors on library projects
 - `publish.ps1` and `publish.sh` output to `artifacts/dist/<RID>/` directory
 - Default listen port resolution moved from `StartCommand` into `DaemonProcessLauncher.GetDefaultPort`
-- `DaemonProcessLauncher.StopDaemon` now returns a process exit code (`1` when no daemon is running)
 - `StartCommand.ProceedStart` extracted as a reusable static start routine shared by `start` and `restart`
+- `DefaultTransferPort` config key added for direct file streaming, distinct from the daemon HTTP port
+- Discovery beacon now advertises `DefaultTransferPort` instead of the daemon HTTP port
+- `v1/status/transfers` now returns live transfer data from `TransferTracker` instead of placeholder data
+- `DaemonProcessLauncher.StopDaemon` now returns a process exit code (`1` when no daemon is running)
 
 ### Removed
 - Root-level NukeShare.CLI and NukeShare.Server project files

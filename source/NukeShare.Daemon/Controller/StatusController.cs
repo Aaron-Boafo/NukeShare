@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using NukeShare.Configuration.Models;
+using NukeShare.Daemon.Service;
 using NukeShare.Network.Discovery;
 
 namespace NukeShare.Daemon.Controller;
@@ -13,11 +14,13 @@ public class StatusController : ControllerBase
     private static readonly DateTime StartTime = DateTime.UtcNow;
     private readonly PeerRegistry _peerRegistry;
     private readonly GlobalConfiguration _config;
+    private readonly TransferTracker _transferTracker;
 
-    public StatusController(PeerRegistry peerRegistry, GlobalConfiguration config)
+    public StatusController(PeerRegistry peerRegistry, GlobalConfiguration config, TransferTracker transferTracker)
     {
         _peerRegistry = peerRegistry;
         _config = config;
+        _transferTracker = transferTracker;
     }
 
     [HttpGet]
@@ -82,24 +85,12 @@ public class StatusController : ControllerBase
     [HttpGet("transfers")]
     public IActionResult GetTransfers()
     {
-        //TODO: Replace with your ActiveTransfers tracker
+        var active = _transferTracker.GetActive();
+
         return Ok(new
         {
-            activeCount = 1,
-            transfers = new[]
-            {
-                new
-                {
-                    transferId = Guid.NewGuid(),
-                    fileName = "release.iso",
-                    direction = "Receiving",
-                    totalBytes = 1073741824L,
-                    transferredBytes = 429496729L,
-                    progressPercentage = 40.0,
-                    transferSpeedBytesPerSec = 15728640,
-                    activeChunks = 4
-                }
-            }
+            activeCount = active.Count,
+            transfers = active.Select(TransferTracker.ToDto).ToArray()
         });
     }
 

@@ -24,11 +24,12 @@
 - **Status Dashboard** - `nuke status` with `--health`, `--peers`, `--transfers`, `--config`, `--shutdown` flags
 - **UDP Network Discovery** - Broadcast-based peer discovery with config-driven intervals and trust modes
 - **Peer Management** - `nuke peers` to list, approve, reject, and remove peers
+- **File Transfer** - `nuke transfer` to send files to discovered peers with live progress, plus transfer history and cancellation
 - **Self-Contained Builds** - Single-file executables for Windows, Linux, and macOS
 - **Cross-Platform Build Scripts** - `publish.ps1` and `publish.sh` for easy publishing
 
 ### Planned Features
-- **Peer-to-Peer File Transfer** - Chunked transfers with configurable chunk size and concurrent chunks
+- **Chunked Transfers** - Chunked transfers with configurable chunk size and concurrent chunks
 - **End-to-End Encryption** - AES-256-GCM encryption with peer trust modes
 - **Transfer Throttling** - Bandwidth limits and peer connection limits
 - **Resumable Transfers** - Resume interrupted transfers automatically
@@ -68,11 +69,13 @@ NukeShare/
     │   │   ├── StopCommand.cs
     │   │   ├── RestartCommand.cs
     │   │   ├── StatusCommand.cs
-    │   │   └── PeersCommand.cs
+    │   │   ├── PeersCommand.cs
+    │   │   └── TransferCommand.cs
     │   ├── Infrastructure/
     │   │   ├── TypeResolver.cs
     │   │   ├── DaemonProcessLauncher.cs
     │   │   ├── StatusRestApi.cs
+    │   │   ├── TransferRestApi.cs
     │   │   └── DaemonStatusDto.cs
     │   └── UI/
     │       └── BannerBadge.cs
@@ -262,6 +265,35 @@ nuke status --peers
 nuke status --transfers
 nuke status --config
 nuke status --shutdown
+```
+
+### Transfer Files
+
+List active transfers:
+```bash
+nuke transfer
+```
+
+Send a file to a discovered peer:
+```bash
+nuke transfer backup.zip --node a1b2c3d4
+```
+
+Omit `--node` to choose the target peer interactively.
+
+Send a file and watch live progress:
+```bash
+nuke transfer backup.zip --node a1b2c3d4 --watch
+```
+
+Show recent transfers:
+```bash
+nuke transfer --recent
+```
+
+Cancel an in-flight transfer:
+```bash
+nuke transfer --cancel <transferId>
 ```
 
 ### Manage Peers

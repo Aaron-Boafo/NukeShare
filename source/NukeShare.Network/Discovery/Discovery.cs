@@ -29,7 +29,7 @@ public class UdpDiscoveryService : BackgroundService
         _logger = logger;
         _registry = registry;
         _discoveryPort = int.TryParse(config.DefaultDiscoveryPort, out var dp) ? dp : 7655;
-        _transferPort = int.TryParse(config.DefaultListenPort, out var tp) ? tp : 7654;
+        _transferPort = int.TryParse(config.DefaultTransferPort, out var tp) ? tp : 7656;
         _discoveryIntervalSeconds = config.DiscoveryIntervalSeconds > 0 ? config.DiscoveryIntervalSeconds : 30;
         _username = string.IsNullOrWhiteSpace(config.Username) ? Environment.UserName : config.Username;
         _deviceName = string.IsNullOrWhiteSpace(config.DeviceName) ? Environment.MachineName : config.DeviceName;
