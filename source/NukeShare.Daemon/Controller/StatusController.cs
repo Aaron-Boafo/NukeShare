@@ -34,7 +34,11 @@ public class StatusController : ControllerBase
             processId = Environment.ProcessId,
             machine = Environment.MachineName,
             timestamp = DateTime.UtcNow,
-            version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0",
+            version = Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion
+                ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)
+                ?? "0.8.0-beta",
             uptime = DateTime.UtcNow - StartTime,
             memoryUsageMb = Math.Round(currentProcess.WorkingSet64 / (1024.0 * 1024.0), 2)
         });

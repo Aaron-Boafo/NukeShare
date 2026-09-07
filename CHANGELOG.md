@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.0-beta] - 2026-09-07
+
 ### Added
 - `source/NukeShare.Core` project (placeholder)
 - `source/NukeShare.Network` project (placeholder)

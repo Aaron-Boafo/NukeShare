@@ -6,9 +6,10 @@ namespace NukeShare.CLI.UI;
 internal static class BannerBadge
 {
     private static readonly string Version = Assembly.GetExecutingAssembly()
-        .GetName()
-        .Version?
-        .ToString(3) ?? "1.0.0";
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion
+        ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)
+        ?? "0.8.0-beta";
 
     private static readonly FigletText Badge = new("NukeShare")
     {
