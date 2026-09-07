@@ -1,4 +1,6 @@
-﻿using Spectre.Console;
+﻿using NukeShare.Configuration.Models;
+using NukeShare.Configuration.Service;
+using Spectre.Console;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -12,6 +14,12 @@ public static class DaemonProcessLauncher
     public static bool IsDaemonRunning()
     {
         return Process.GetProcessesByName(AppName).Length > 0;
+    }
+
+    public static async Task<string> GetDefaultPort(ConfigurationService service)
+    {
+        GlobalConfiguration config = await service.LoadGlobalConfig();
+        return config.DefaultListenPort;
     }
 
     public static string ResolveDaemonPath()
@@ -185,7 +193,7 @@ public static class DaemonProcessLauncher
         }
     }
 
-    public static void StopDaemon()
+    public static int StopDaemon()
     {
         var processes = Process.GetProcessesByName(AppName);
 
@@ -194,7 +202,7 @@ public static class DaemonProcessLauncher
             AnsiConsole.MarkupLine("[yellow]┌─[bold] No daemon [/]─[/]");
             AnsiConsole.MarkupLine("[yellow]│[/] No active NukeShare daemon instance was found.");
             AnsiConsole.MarkupLine("[yellow]└─[/]");
-            return;
+            return 1;
         }
 
         foreach (var process in processes)
@@ -214,5 +222,7 @@ public static class DaemonProcessLauncher
                 AnsiConsole.MarkupLine("[red]└─[/]");
             }
         }
+
+        return 0;
     }
 }

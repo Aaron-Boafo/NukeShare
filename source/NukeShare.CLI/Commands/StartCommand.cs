@@ -1,5 +1,4 @@
 ﻿using NukeShare.CLI.Infrastructure;
-using NukeShare.Configuration.Models;
 using NukeShare.Configuration.Service;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -25,7 +24,7 @@ public class StartCommand(ConfigurationService _configService) : AsyncCommand<St
     {
         var option = new DaemonOption
         {
-            ListeningPort = await GetDefaultPort()
+            ListeningPort = await DaemonProcessLauncher.GetDefaultPort(_configService)
         };
 
 
@@ -59,6 +58,18 @@ public class StartCommand(ConfigurationService _configService) : AsyncCommand<St
             AnsiConsole.MarkupLine("[yellow]└─[/]");
         }
 
+        return await ProceedStart(option.Background, option.ListeningPort);
+    }
+
+
+    private class DaemonOption
+    {
+        public string? ListeningPort { get ; set; }
+        public bool Background { get; set; } = false;
+    }
+
+    public static async Task<int> ProceedStart(bool Background, string ListeningPort)
+    {
         return AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("orange1"))
@@ -76,26 +87,14 @@ public class StartCommand(ConfigurationService _configService) : AsyncCommand<St
                 }
 
                 ctx.Status("Launching background process...");
-                DaemonProcessLauncher.RunDaemon(option.Background, option.ListeningPort ?? "7654");
+                DaemonProcessLauncher.RunDaemon(Background, ListeningPort ?? "7654");
 
                 AnsiConsole.MarkupLine("[green]┌─[bold] Daemon started [/]─[/]");
-                AnsiConsole.MarkupLine($"[green]│[/] Listening on [bold cyan]http://127.0.0.1:{option.ListeningPort.EscapeMarkup()}[/].");
+                AnsiConsole.MarkupLine($"[green]│[/] Listening on [bold cyan]http://127.0.0.1:{ListeningPort.EscapeMarkup()}[/].");
                 AnsiConsole.MarkupLine("[green]├─[/]");
                 AnsiConsole.MarkupLine("[green]│[/] [grey]Run [white bold]nuke stop[/] to terminate the daemon.[/]");
                 AnsiConsole.MarkupLine("[green]└─[/]");
                 return 0;
             });
-    }
-
-    public async Task<string> GetDefaultPort()
-    {
-        GlobalConfiguration config = await _configService.LoadGlobalConfig();
-        return config.DefaultListenPort;
-    }
-
-    private class DaemonOption
-    {
-        public string? ListeningPort { get ; set; }
-        public bool Background { get; set; } = false;
     }
 }
