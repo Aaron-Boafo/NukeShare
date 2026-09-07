@@ -106,3 +106,50 @@ public record TrustRequestDTO(string Trust);
 public record TrustResponseDTO(string NodeId, string Trust);
 
 public record RemovePeerResponseDTO(string NodeId, bool Removed);
+
+public record TransferDetailDTO(
+    Guid TransferId,
+    string FileName,
+    string Direction,
+    long TotalBytes,
+    long TransferredBytes,
+    double ProgressPercentage,
+    long TransferSpeedBytesPerSec,
+    int ActiveChunks,
+    string State
+);
+
+public record TransferListViewDTO(
+    int ActiveCount,
+    TransferDetailDTO[] Transfers
+);
+
+public record TransferHistoryDTO(
+    TransferDetailDTO[] Transfers
+);
+
+public record TransferSendRequestDTO(
+    string NodeId,
+    string FilePath
+);
+
+public record TransferSendResponseDTO(
+    TransferDetailDTO Transfer
+);
+
+public record TransferSendResultDTO(
+    TransferDetailDTO? Transfer,
+    string? Error
+);
+
+public record CancelTransferDTO(
+    Guid TransferId,
+    string Message
+);
+
+public record CancelTransferResultDTO(
+    string? Message,
+    string? Error
+);
+
+public record ErrorResponseDTO(string Error);

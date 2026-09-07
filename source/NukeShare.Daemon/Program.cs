@@ -3,6 +3,8 @@ using NukeShare.Configuration.Providers;
 using NukeShare.Configuration.Service;
 using NukeShare.Configuration.Models;
 using NukeShare.Network.Discovery;
+using NukeShare.Network.FileTransfer;
+using NukeShare.Daemon.Service;
 using CoreLogger = NukeShare.Core.Logger;
 
 namespace NukeShare.Daemon;
@@ -33,12 +35,21 @@ public class Program
             return new PeerRegistry(maxPeers, peerTimeout);
         });
 
+        builder.Services.AddSingleton<TransferTracker>();
+
         builder.Services.AddHostedService(sp =>
         {
             var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger<UdpDiscoveryService>();
             var registry = sp.GetRequiredService<PeerRegistry>();
             var config = sp.GetRequiredService<GlobalConfiguration>();
             return new UdpDiscoveryService(logger, registry, config);
+        });
+
+        builder.Services.AddHostedService(sp =>
+        {
+            var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger<TcpFileReceiverService>();
+            var config = sp.GetRequiredService<GlobalConfiguration>();
+            return new TcpFileReceiverService(logger, config);
         });
 
         var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? $"http://127.0.0.1:7654";

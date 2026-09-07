@@ -27,6 +27,7 @@ public class Program
         services.AddSingleton<RestartCommand>();
         services.AddSingleton<StatusCommand>();
         services.AddSingleton<PeersCommand>();
+        services.AddSingleton<TransferCommand>();
 
         var registrar = new TypeRegistrar(services);
         var app = new CommandApp<RootCommand>(registrar);
@@ -74,6 +75,14 @@ public class Program
             .WithExample(["peers", "--reject"])
             .WithExample(["peers", "--reject", "e5f6g7h8"])
             .WithExample(["peers", "--remove", "i9j0k1l2"]);
+
+            config.AddCommand<TransferCommand>("transfer")
+            .WithDescription("Send files to peers, list active transfers, or cancel transfers")
+            .WithExample(["transfer"])
+            .WithExample(["transfer", "backup.zip", "--node", "a1b2c3d4"])
+            .WithExample(["transfer", "backup.zip", "--node", "a1b2c3d4", "--watch"])
+            .WithExample(["transfer", "--recent"])
+            .WithExample(["transfer", "--cancel", "00000000-0000-0000-0000-000000000000"]);
 
         });
 
