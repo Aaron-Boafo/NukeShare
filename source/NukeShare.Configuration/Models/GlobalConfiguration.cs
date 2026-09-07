@@ -44,8 +44,11 @@ namespace NukeShare.Configuration.Models
         public bool OverwriteExisting { set; get; } = false;
 
         // Network / Discovery
-        [Description("TCP port used for direct chunk streaming and transfers.")]
+        [Description("TCP port used by the daemon's HTTP control server.")]
         public string DefaultListenPort { set; get; } = "7654";
+
+        [Description("TCP port used for direct file chunk streaming and transfers.")]
+        public string DefaultTransferPort { set; get; } = "7656";
 
         [Description("UDP port used for local network discovery.")]
         public string DefaultDiscoveryPort { set; get; } = "7655";
